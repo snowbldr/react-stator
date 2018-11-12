@@ -1,23 +1,45 @@
-const toPathStrings = (next, currPath, paths, depth) => {
-    if(depth=0) return
-    if (Array.isArray(next) || typeof next !== "object") {
+/**
+ * Find all paths on the given object up to the specified depth
+ * @param next The object to get the paths of
+ * @param currPath The currentPath that we're traversing
+ * @param paths The array of paths to fill up
+ * @param depth How deep we should traverse into the object
+ * @param filter A filter to use to avoid traversing properties. i.e. Promises
+ */
+const toPathStrings = (next, currPath, paths, depth, filter) => {
+    if(depth === 0) return
+    if (Array.isArray(next) || typeof next !== "object" || !filter(next) ) {
         paths.push(currPath)
     } else {
         Object.keys(next)
-            .forEach(k => toPathStrings(next[k], currPath ? currPath + "." + k : k, paths, depth-1))
+            .forEach(k => toPathStrings(next[k], currPath ? currPath + "." + k : k, paths, depth && depth-1, filter))
     }
 }
 
 export default {
-    toPaths: (attrs, depth) => {
+    /**
+     * Convert an object to a list of paths up to the given depth
+     * @param obj The object to get the paths of
+     * @param filter A filter to use to avoid traversing properties. i.e. Promises
+     * @param depth The depth to go
+     * @returns {Array} The array of paths
+     */
+    toPaths: (obj, filter, depth) => {
         const paths = []
-        toPathStrings(attrs, null, paths, depth)
+        let pass = ()=>true
+        toPathStrings(obj, null, paths, depth, filter || pass)
         return paths
     },
 
-    putPath: (path, root, val) => {
+    /**
+     * Set the value of the given object at the specified path
+     * @param path The path to set the value at
+     * @param obj The object to set the value on
+     * @param val The value to set
+     */
+    putPath: (path, obj, val) => {
         const parts = path.split(".")
-        let current = root
+        let current = obj
         for (let i in parts) {
             if (i == parts.length - 1){
                 current[parts[i]] = val
@@ -27,5 +49,11 @@ export default {
         }
     },
 
+    /**
+     * Get the value at the given path from the specified object
+     * @param path The path to get
+     * @param obj The object to get the value from
+     * @returns {{}} The value at the given path
+     */
     getPath: (path, obj) => path.split(".").reduce((a, p) => typeof obj[p] !== 'undefined' ? obj[p] : undefined, {})
 }

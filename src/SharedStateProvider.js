@@ -1,12 +1,21 @@
 import paths from './ObjectPaths'
 import uuid from 'uuid/v4'
 
+/**
+ * A SharedStatProvider provides the values of a shared state to the listening components.
+ */
 export default class SharedStateProvider {
+    /**
+     * The state this provider provides. This is also the initial state for this provider.
+     * If any values on the initial state have a "then" function, we will assume it's a promise,
+     * execute the promise, and update the initial state to the resolved value.
+     * @param provides The initial state
+     */
     constructor(provides) {
-        this.initialPaths = paths.toPaths(provides, 1)
+        this.initialPaths = paths.toPaths(provides, (obj)=> !(obj && typeof obj.then === "function") )
         this.state = Object.assign({}, provides)
         this.listeners = {}
-        this.isLoaded = false
+        this.load()
         const applySharedState = (newState) => this.initialPaths.forEach(p => {
             let value = paths.getPath(p, newState)
             if (value) {
@@ -18,46 +27,57 @@ export default class SharedStateProvider {
         this.applySharedState = applySharedState.bind(this)
     }
 
+    /**
+     * Listen for changes to the specified path
+     * @param path The path to listen to changes for
+     * @param listener A function that will be executed to inform the caller of the new value. (newValue)=>{}
+     * @returns {*} A function to call to stop listening for changes
+     */
     listen(path, listener) {
-        this.load()
         if (!this.listeners[path]) this.listeners[path] = {}
         let listenerKey = uuid()
         this.listeners[path][listenerKey] = listener
         let currentValue = paths.getPath(path, this.state)
         if (currentValue) listener(currentValue)
-        return listenerKey
+        let mute = ()=>{
+            if (this.listeners[path]) delete this.listeners[path][listenerKey]
+        }
+        mute.bind(this)
+        return mute
     }
 
-    mute(path, listenerKey) {
-        if (this.listeners[path]) delete this.listeners[path][listenerKey]
-    }
-
+    /**
+     * Determine if this provider can provide the given state path
+     */
     canProvide(path) {
         return this.initialPaths.some(initialPath => path.startsWith(initialPath))
     }
 
+    /**
+     * Notify the listeners of a new value at the given path
+     */
     notify(path, value) {
         this.listeners[path] && Object.keys(this.listeners[path]).forEach(listener => {
             this.listeners[path][listener](value)
         })
     }
 
+    /**
+     * Load any state promises and notify the listeners
+     */
     load() {
-        if (!this.isLoaded) {
-            this.isLoaded = true
-            for (let p of this.initialPaths) {
-                let value = paths.getPath(p, this.state)
-                let setState = (val)=>{
-                    paths.putPath(p, this.state, val)
-                    this.notify(p, val)
-                }
-                setState.bind(this)
-                if (typeof value.then === 'function') {
-                    value.then(setState)
-                } else {
-                    setState(value)
-                }
-
+        for( let p of this.initialPaths ) {
+            let value = paths.getPath( p, this.state )
+            let setState = ( val ) => {
+                paths.putPath( p, this.state, val )
+                this.notify( p, val )
+            }
+            setState.bind( this )
+            if( typeof value.then === 'function' ) {
+                paths.putPath(p, this.state, null)
+                value.then( setState )
+            } else {
+                setState( value )
             }
         }
     }

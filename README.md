@@ -6,7 +6,6 @@ There are three components of react stator.
  - Shared State
  - Shared State Provider
 
-
 ### Local State
 This is the classic state in react. That is, an object that when changed triggers the component to be rendered again
 with the new values.
@@ -15,12 +14,18 @@ with the new values.
 This is the same as local state, except that it's shared amongst multiple components instead of only one. 
 
 ### Shared State Provider
-A shared state provider is an instance that provides shared state to the component. Each instance has it's own state,
+A shared state provider is an instance that provides shared state to a component. Each instance has it's own state,
  so you can create multiple instances to use in multiple contexts if you want to.
 
 ## Reading State
 
-You can access both local and shared state through `this.state` or `props.state`
+To connect the components state to the shared state, pass an initial state that has the same properties as the shared
+state that you want to connect to. Once you've done that, you can access the properties using either:
+
+`this.state` for react component classes that extend StatefulComponent 
+
+
+`props.state` for functional components created using the stateful function
 
 ## Changing State
 To change the state in your app, you have access to a couple of functions that work exactly like reacts setState
@@ -32,15 +37,26 @@ To change the state in your app, you have access to a couple of functions that w
 
 - Shared State:
 
-    Use the applySharedState method on the provider
+    Use the `this.applySharedState` method on the provider
      
     Tip: You can use this directly or make functions on your provider that modify the state. 
     
     It's recommended to only write to the state from your provider, to make it more obvious who is changing state.
     
     You can also make functions to read or verify shared state if you want to keep all your stateful actions together 
-    in one place, though accessing this.state or props.state will 
+    in one place, though accessing this.state or props.state is perfectly fine
 
+### Async State Initialization
+If any value on the initial state is a promise, we will automatically update the state to the resolved value once we receive it.
+
+That is, 
+
+`{ foo: Promise.resolve("hello world") }` 
+
+becomes `{ foo: null }` before the promise resolves
+
+then finally `{ foo: "hello world" }` when the promise resolves and we receive the value
+ 
 
 #### Example SharedStateProvider
 ```JavaScript    
