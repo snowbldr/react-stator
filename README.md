@@ -46,8 +46,38 @@ To change the state in your app, you have access to a couple of functions that w
     You can also make functions to read or verify shared state if you want to keep all your stateful actions together 
     in one place, though accessing this.state or props.state is perfectly fine
 
+## RootProviders
+You can add root providers that will be available to the entire app context so that you don't have to
+keep importing the same state provider everywhere.
+ 
+Any local provider is allowed to override the state
+properties of any root providers.
+
+No two root providers can provide the same property. This is to avoid ambiguity.
+
+Use the `providerOf` function to get a handle on a root provider that provides some state.
+
+To get a single provider pass the path of the property `providerOf("foo.bar[0].baz")` to get a specific provider 
+ 
+To get multiple providers pass an object that has the same properties as the provided properties like 
+this: `providerOf({foo: { bar: [ {baz: "hello"} ]}, bah: "world"})`
+ 
+That returns an object like this:
+```javascript
+{
+    foo: {
+        bar: [
+            {
+                baz: bazSharedStateProvider
+            }
+        ]
+    },
+    bah: bahSharedStateProvider
+ }
+```
+
 ### Async State Initialization
-If any value on the initial state is a promise, we will automatically update the state to the resolved value once we receive it.
+If any value on the initial state or new state is a promise, we will automatically update the state to the resolved value once we receive it.
 
 That is, 
 
@@ -56,36 +86,44 @@ That is,
 becomes `{ foo: null }` before the promise resolves
 
 then finally `{ foo: "hello world" }` when the promise resolves and we receive the value
- 
+
+### Examples
+Below are some examples of using react-stator
+
+You can also clone this repo, cd to example-app, and run `npm install && npm run start`.
 
 #### Example SharedStateProvider
 ```JavaScript    
-import {SharedStateProvider} from 'stateful-components'
+import {SharedStateProvider} from 'react-stator'
 
-let last = 1
-
-class NumbersProvider extends SharedStateProvider {
+export default class NumbersProvider extends SharedStateProvider {
+    
+    constructor(){
+        super({ numbers: [] })
+        this.last = 1
+    }
+    
     loadNumber() {
-        //ultimately calls setState on each component with this provider
         this.applySharedState({ numbers: this.state.numbers.concat([last++]) })
     }
     hasNumbers() {
-        this.state.numbers.length > 0            
+        return this.state.numbers.length > 0
     }
 }
-
-export default new NumbersProvider({ number: [] })
 ```
 
 
 #### Example stateful functional component
 ```JavaScript
 import React from 'react'
-import numbersProvider from './NumbersProvider.js'
+import NumbersProvider from './NumbersProvider.js'
 import { stateful } from 'index'
+import {registerRootProvider} from 'react-stator'
+//do this only once per root provider!!!
+registerRootProvider(new NumbersProvider())
 
 export default stateful(
-    { numbers: [], localTime: new Date().getTime() }, [ numbersProvider ],
+    { numbers: [], localTime: new Date().getTime() },
     ( { state, applyLocalState } ) =>
         <div>
 
@@ -114,10 +152,13 @@ export default stateful(
 import React from 'react'
 import numbersProvider from './NumbersProvider.js'
 import {StatefulComponent} from 'stateful-components'
+import {registerRootProvider} from 'react-stator'
+//do this only once per root provider!!!
+registerRootProvider(new NumbersProvider())
 
 export default class extends StatefulComponent{
    constructor(props){
-       super({numbers: [], localTime: 0}, [numbersProvider], props)
+       super({numbers: [], localTime: 0}, props)
    }
 
    render() {

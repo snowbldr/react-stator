@@ -1,0 +1,16 @@
+#app {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+}
+
+button {
+    width: 20vw;
+    cursor: pointer;
+}
+
+ul {
+    width: 20vw;
+    margin: auto
+}

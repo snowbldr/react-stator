@@ -1,6 +1,6 @@
 {
   "name": "react-stator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Robert Kmepton <r@snow87.com>",
   "private": false,
   "dependencies": {
@@ -8,13 +8,22 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "jest": "^23.6.0",
     "react-dom": "^16.6.1"
+  },
+  "scripts": {
+    "start": "http-server -p 9000"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:narcolepticsnowman/react-stator.git"
   },
-  "keywords": ["react","state","redux","flux"],
+  "keywords": [
+    "react",
+    "state",
+    "redux",
+    "flux"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/narcolepticsnowman/react-stator"
 }

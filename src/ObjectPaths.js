@@ -8,11 +8,18 @@
  */
 const toPathStrings = (next, currPath, paths, depth, filter) => {
     if(depth === 0) return
-    if (Array.isArray(next) || typeof next !== "object" || !filter(next) ) {
+    if(Array.isArray(next)){
         paths.push(currPath)
-    } else {
+        if(next.length > 0) {
+            for(let i=0; i<next.length; i++){
+                toPathStrings(next[i], `${currPath}[${i}]`, paths, depth && depth-1, filter)
+            }
+        }
+    }  else if (next && typeof next === "object" && filter(next)) {
         Object.keys(next)
             .forEach(k => toPathStrings(next[k], currPath ? currPath + "." + k : k, paths, depth && depth-1, filter))
+    } else {
+        paths.push(currPath)
     }
 }
 
@@ -39,12 +46,43 @@ export default {
      */
     putPath: (path, obj, val) => {
         const parts = path.split(".")
-        let current = obj
-        for (let i in parts) {
-            if (i == parts.length - 1){
-                current[parts[i]] = val
-            } else if (current[parts[i]]) {
-                current = current[parts[i]]
+
+        if(parts.length === 1){
+            obj[parts[0]] = val
+        } else {
+            const parentPaths = parts.slice(0, parts.length-1)
+            const parent = parentPaths
+                .reduce((obj, prop)=> {
+                    if(!obj[prop]){
+                        if(prop.endsWith("]")){
+                            obj[prop] = []
+                        } else {
+                            obj[prop] = {}
+                        }
+                        return obj[prop]
+                    } else {
+                        if(prop.endsWith("]")){
+                            let indMarker = prop.lastIndexOf("[")
+                            let ind = prop.slice(indMarker+1,prop.length-1)
+                            let arrProp = prop.slice(0, indMarker);
+                            if(!Array.isArray(obj[arrProp])) obj[arrProp] = []
+                            return obj[arrProp][parseInt(ind)]
+                        } else {
+                            return obj[prop]
+                        }
+                    }
+                }, obj)
+            if(parent){
+                let prop = parts.slice(-1)[0]
+                if(prop.endsWith("]")){
+                    let indMarker = prop.lastIndexOf("[")
+                    let ind = prop.slice(indMarker+1,prop.length-1)
+                    parent[prop.slice(0, indMarker)][ind] = val
+                } else {
+                    parent[prop] = val
+                }
+            } else {
+                return parent
             }
         }
     },
@@ -55,5 +93,13 @@ export default {
      * @param obj The object to get the value from
      * @returns {{}} The value at the given path
      */
-    getPath: (path, obj) => path.split(".").reduce((a, p) => typeof obj[p] !== 'undefined' ? obj[p] : undefined, {})
+    getPath: (path, obj) => path.split(".").reduce((obj, prop) => {
+        if(prop.endsWith("]")){
+            let indMarker = prop.lastIndexOf("[")
+            let ind = prop.slice(indMarker+1,prop.length-1)
+            return obj[prop.slice(0, indMarker)][parseInt(ind)]
+        } else {
+            return obj[prop] ? obj[prop] : undefined
+        }
+    }, obj)
 }

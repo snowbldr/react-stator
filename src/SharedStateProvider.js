@@ -13,16 +13,28 @@ export default class SharedStateProvider {
      */
     constructor(provides) {
         this.initialPaths = paths.toPaths(provides, (obj)=> !(obj && typeof obj.then === "function") )
+            .reduce((paths, path)=>{
+                paths[path] = true
+                return paths
+            }, {})
         this.state = Object.assign({}, provides)
         this.listeners = {}
         this.load()
-        const applySharedState = (newState) => this.initialPaths.forEach(p => {
-            let value = paths.getPath(p, newState)
-            if (value) {
-                paths.putPath(p, this.state, value)
-                this.notify(p, value)
-            }
-        })
+        const applySharedState = (newState) => {
+            Object.keys(this.initialPaths).forEach(p => {
+                let value = paths.getPath(p, newState)
+                if(value && typeof value.then === "function"){
+                    const doUpdate = (val)=>{
+                        paths.putPath(p, this.state, value)
+                        this.notify(p, val)
+                    }
+                    value.then(doUpdate.bind(this))
+                } else {
+                    paths.putPath(p, this.state, value)
+                    this.notify(p, value)
+                }
+            })
+        }
 
         this.applySharedState = applySharedState.bind(this)
     }
@@ -50,7 +62,7 @@ export default class SharedStateProvider {
      * Determine if this provider can provide the given state path
      */
     canProvide(path) {
-        return this.initialPaths.some(initialPath => path.startsWith(initialPath))
+        return !!this.initialPaths[path]
     }
 
     /**
@@ -66,14 +78,14 @@ export default class SharedStateProvider {
      * Load any state promises and notify the listeners
      */
     load() {
-        for( let p of this.initialPaths ) {
+        for( let p in this.initialPaths ) {
             let value = paths.getPath( p, this.state )
             let setState = ( val ) => {
                 paths.putPath( p, this.state, val )
                 this.notify( p, val )
             }
             setState.bind( this )
-            if( typeof value.then === 'function' ) {
+            if( value && typeof value.then === 'function' ) {
                 paths.putPath(p, this.state, null)
                 value.then( setState )
             } else {
