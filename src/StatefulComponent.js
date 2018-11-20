@@ -1,7 +1,8 @@
 import React from 'react'
 import paths from './ObjectPaths'
 import uuid from 'uuid/v4'
-import {getRootProviders} from './RootProviders'
+import { getRootProviders } from './RootProviders'
+
 /**
  * A react component with a state that it isn't afraid to use
  */
@@ -14,7 +15,7 @@ export class StatefulComponent extends React.Component {
      * @param props The react props for this component
      */
     constructor( initialState, providers, props ) {
-        if(!props && (providers && !Array.isArray(providers))) {
+        if( !props && ( providers && !Array.isArray( providers ) ) ) {
             props = providers
             providers = []
         }
@@ -22,10 +23,10 @@ export class StatefulComponent extends React.Component {
         this.state = initialState
         this.providers = providers
         if( providers && !Array.isArray( providers ) ) this.providers = [ this.providers ]
-        this.providers.forEach(p=> {
-            if(typeof p !== "object"){
-                throw "You supplied a provider that is not an instance of an object. Make sure you did: new Provider()" +
-                    " This came from the component with initial state: " + JSON.stringify(initialState)
+        this.providers.forEach( p => {
+            if( typeof p !== 'object' ) {
+                throw 'You supplied a provider that is not an instance of an object. Make sure you did: new Provider()' +
+                      ' This came from the component with initial state: ' + JSON.stringify( initialState )
             }
         } )
         this.listenPaths = paths.toPaths( initialState )
@@ -43,32 +44,34 @@ export class StatefulComponent extends React.Component {
                     paths.putPath( path, this.state, val )
                     this.setState( this.state )
                 }
-                updateOn.bind(this)
+                updateOn.bind( this )
 
                 let localProvided = false
-                let mute = this.providers && this.providers
-                    .filter(
-                        provider => provider.canProvide( path )
-                    )
-                    .map(
-                        provider => {
-                            if(localProvided)
-                                throw "Multiple local providers found for property "+path+" property is ambiguous"
-                            localProvided = true
-                            return provider.listen( path, updateOn)
-                        }
-                    )
-                if(mute && mute[0]){
-                    return mute[0]
-                } else if(!localProvided && getRootProviders()) {
-                    if(getRootProviders()[path]){
-                        return getRootProviders()[path].listen(path, updateOn)
+                let mute = this.providers
+                           && this.providers
+                                  .filter(
+                                      provider => provider.canProvide( path )
+                                  )
+                                  .map(
+                                      provider => {
+                                          if( localProvided )
+                                              throw 'Multiple local providers found for property ' + path + ' property is ambiguous'
+                                          localProvided = true
+                                          return provider.listen( path, updateOn )
+                                      }
+                                  )
+                if( mute && mute[ 0 ] ) {
+                    return mute[ 0 ]
+                } else if( !localProvided && getRootProviders() ) {
+                    if( getRootProviders()[ path ] ) {
+                        return getRootProviders()[ path ].listen( path, updateOn )
                     }
                 } else {
                     return null
                 }
             }
         )
+                                 .filter( mute => !!mute )
     }
 
     /**
@@ -88,10 +91,11 @@ export class StatefulComponent extends React.Component {
  * @returns {function(*=)} The stateful functional component
  */
 export const stateful = ( initialState, providers, render ) => {
-    if(!render && typeof providers === "function") {
+    if( !render && typeof providers === 'function' ) {
         render = providers
         providers = []
     }
+
     class funny extends StatefulComponent {
         constructor( props ) {
             super( initialState, providers, props )
@@ -100,9 +104,9 @@ export const stateful = ( initialState, providers, render ) => {
         }
 
         render() {
-            return render( Object.assign({}, this.props, {state: this.state, applyLocalState: this.applyLocalState } ))
+            return render( Object.assign( {}, this.props, { state: this.state, applyLocalState: this.applyLocalState } ) )
         }
     }
 
-    return ( props ) => React.createElement( funny, Object.assign({}, props, { key: ( props && props.key ) || uuid() } ))
+    return ( props ) => React.createElement( funny, Object.assign( {}, props, { key: ( props && props.key ) || uuid() } ) )
 }
