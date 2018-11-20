@@ -24,16 +24,18 @@ export default class SharedStateProvider {
         this.load()
         const applySharedState = ( newState ) => {
             Object.keys( this.initialPaths ).forEach( p => {
-                let value = paths.getPath( p, newState )
-                if( value && typeof value.then === 'function' ) {
-                    const doUpdate = ( val ) => {
+                if(paths.hasPath(p, newState)){
+                    let value = paths.getPath( p, newState )
+                    if( value && typeof value.then === 'function' ) {
+                        const doUpdate = ( val ) => {
+                            paths.putPath( p, this.state, value )
+                            this.notify( p, val )
+                        }
+                        value.then( doUpdate.bind( this ) )
+                    } else {
                         paths.putPath( p, this.state, value )
-                        this.notify( p, val )
+                        this.notify( p, value )
                     }
-                    value.then( doUpdate.bind( this ) )
-                } else {
-                    paths.putPath( p, this.state, value )
-                    this.notify( p, value )
                 }
             } )
         }

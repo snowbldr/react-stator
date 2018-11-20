@@ -101,5 +101,20 @@ export default {
         } else {
             return obj[ prop ] ? obj[ prop ] : undefined
         }
-    }, obj )
+    }, obj ),
+
+    /**
+     * Check whether the given path actually exists on an object
+     * @param path The path to check
+     * @param obj The object to check if the path exists on
+     * @returns boolean whether the path exists or not
+     */
+    hasPath: (path, obj) => {
+        let parent = path.split(".").slice(0, -1)
+        if(parent && parent.length > 1){
+            return !!this.getPath(parent.join("."), obj)
+        } else {
+            return !!obj && obj.hasOwnProperty(path)
+        }
+    }
 }
