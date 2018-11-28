@@ -22,6 +22,11 @@ export default class SharedStateProvider {
         this.state = Object.assign( {}, provides )
         this.listeners = {}
         this.load()
+
+        /**
+         * This works Object.assign from the old state to the new state
+         * @param newState
+         */
         const applySharedState = ( newState ) => {
             Object.keys( this.initialPaths ).forEach( p => {
                 if(paths.hasPath(p, newState)){

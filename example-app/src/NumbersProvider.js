@@ -1,6 +1,6 @@
 import {SharedStateProvider} from 'react-stator'
 
-export default class NumbersProvider extends SharedStateProvider {
+export default new (class NumbersProvider extends SharedStateProvider {
 
     constructor() {
         super({ numbers: Promise.resolve([]) })
@@ -14,4 +14,4 @@ export default class NumbersProvider extends SharedStateProvider {
     hasNumbers() {
         return this.state.numbers && this.state.numbers.length > 0
     }
-}
+})()

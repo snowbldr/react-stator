@@ -37,43 +37,43 @@ To change the state in your app, you have access to a couple of functions that w
 
 - Shared State:
 
-    Use the `this.applySharedState` method on the provider
+    Use the `this.applySharedState` method on the provider. This function patches the state, meaning it will only update
+    the values of the properties provided to the function and will never remove properties.
      
-    Tip: You can use this directly or make functions on your provider that modify the state. 
+    You can use this directly or make functions on your provider that modify the state. 
     
     It's recommended to only write to the state from your provider, to make it more obvious who is changing state.
     
     You can also make functions to read or verify shared state if you want to keep all your stateful actions together 
     in one place, though accessing this.state or props.state is perfectly fine
 
-## RootProviders
-You can add root providers that will be available to the entire app context so that you don't have to
-keep importing the same state provider everywhere.
- 
-Any local provider is allowed to override the state
-properties of any root providers.
+## Singleton Providers
+You can make singleton providers to provide a shared state to your entire app by exporting an instance of an object in a file and 
+importing that provider wherever you need it. 
 
-No two root providers can provide the same property. This is to avoid ambiguity.
+For example you could have a file, mySharedStateProvider.js, that contained:
 
-Use the `providerOf` function to get a handle on a root provider that provides some state.
+```js
+export default new (class MySharedStateProvider extends SharedStateProvider {
+    constructor(){
+        super({mySharedState: {
+                          hello: "world"
+                      }})
+    }
+})()
+```
 
-To get a single provider pass the path of the property `providerOf("foo.bar[0].baz")` to get a specific provider 
- 
-To get multiple providers pass an object that has the same properties as the provided properties like 
-this: `providerOf({foo: { bar: [ {baz: "hello"} ]}, bah: "world"})`
- 
-That returns an object like this:
-```javascript
-{
-    foo: {
-        bar: [
-            {
-                baz: bazSharedStateProvider
-            }
-        ]
-    },
-    bah: bahSharedStateProvider
- }
+Then import and use it in your component
+```js
+import React from 'react'
+import {stateful} from 'react-stator'
+import mySharedStateProvider from './MySharedStateProvider'
+
+export default stateful(
+    {mySharedState: {}},
+    [mySharedStateProvider],
+    ({state}) => <div> {state.mySharedState.hello} </div>
+)
 ```
 
 ### Async State Initialization
@@ -96,7 +96,7 @@ You can also clone this repo, cd to example-app, and run `npm install && npm run
 ```JavaScript    
 import {SharedStateProvider} from 'react-stator'
 
-export default class NumbersProvider extends SharedStateProvider {
+export default new (class NumbersProvider extends SharedStateProvider {
     
     constructor(){
         super({ numbers: [] })
@@ -109,7 +109,7 @@ export default class NumbersProvider extends SharedStateProvider {
     hasNumbers() {
         return this.state.numbers.length > 0
     }
-}
+})()
 ```
 
 
@@ -118,9 +118,6 @@ export default class NumbersProvider extends SharedStateProvider {
 import React from 'react'
 import NumbersProvider from './NumbersProvider.js'
 import { stateful } from 'index'
-import {registerRootProvider} from 'react-stator'
-//do this only once per root provider!!!
-registerRootProvider(new NumbersProvider())
 
 export default stateful(
     { numbers: [], localTime: new Date().getTime() },
@@ -128,7 +125,7 @@ export default stateful(
         <div>
 
             <div>Change The shared state:</div>
-            <button onClick={()=>numbersProvider.loadNumber()}>load</button>
+            <button onClick={()=>NumbersProvider.loadNumber()}>load</button>
 
             <div>Change The local state:</div>
             <button onClick={()=>applyLocalState( { localTime: new Date().getTime() } )}> 
@@ -137,7 +134,7 @@ export default stateful(
 
             <div>Read the sharedState</div>
             <ul>
-                {numbersProvider.hasNumbers()
+                {NumbersProvider.hasNumbers()
                  ? state.numbers.map( n => <li key={n}> {n} </li> )
                  : <li>No Numbers</li>
                 }
@@ -152,9 +149,6 @@ export default stateful(
 import React from 'react'
 import numbersProvider from './NumbersProvider.js'
 import {StatefulComponent} from 'stateful-components'
-import {registerRootProvider} from 'react-stator'
-//do this only once per root provider!!!
-registerRootProvider(new NumbersProvider())
 
 export default class extends StatefulComponent{
    constructor(props){

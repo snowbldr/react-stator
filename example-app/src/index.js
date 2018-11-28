@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import NumberList from './NumbersListClass'
 import numbersList from './NumbersListFunction'
-import NumbersProvider from './NumbersProvider'
-import {registerRootProvider} from "react-stator";
-
-registerRootProvider(new NumbersProvider())
+import KeyValueListComponent from './KeyValueListComponent'
 
 ReactDOM.render(
     <div id="app">
+        {KeyValueListComponent()}
         <NumberList/>
         {numbersList()}
     </div>,

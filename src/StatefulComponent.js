@@ -1,7 +1,6 @@
 import React from 'react'
 import paths from './ObjectPaths'
 import uuid from 'uuid/v4'
-import { getRootProviders } from './RootProviders'
 
 /**
  * A react component with a state that it isn't afraid to use
@@ -10,8 +9,7 @@ export class StatefulComponent extends React.Component {
     /**
      * @param initialState The initial state of the this component
      * @param providers SharedStateProviders that will provide values for shared state. This is mostly used where you
-     *          want to share state only between a set of components. We will also look for properties in the root
-     *          providers if any are configured
+     *          want to share state only between a set of components.
      * @param props The react props for this component
      */
     constructor( initialState, providers, props ) {
@@ -62,10 +60,6 @@ export class StatefulComponent extends React.Component {
                                   )
                 if( mute && mute[ 0 ] ) {
                     return mute[ 0 ]
-                } else if( !localProvided && getRootProviders() ) {
-                    if( getRootProviders()[ path ] ) {
-                        return getRootProviders()[ path ].listen( path, updateOn )
-                    }
                 } else {
                     return null
                 }

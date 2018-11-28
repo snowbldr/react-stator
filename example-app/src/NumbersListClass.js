@@ -1,16 +1,16 @@
 import React from 'react'
-import {providerOf, StatefulComponent} from 'react-stator'
+import {StatefulComponent} from 'react-stator'
+import numbersProvider from './NumbersProvider'
 import NumberListItemClass from './NumberListItemClass'
 import SelectionProvider from './SelectGroupProvider'
 
 export default class extends StatefulComponent{
     constructor(props){
-        super({numbers: [], localTime: new Date().getTime()}, props)
+        super({numbers: [], localTime: new Date().getTime()},[numbersProvider], props)
         this.selectionProvider = new SelectionProvider()
     }
 
     render() {
-        let numbersProvider = providerOf("numbers")
         return <div>
             <h2>Change The shared state:</h2>
             <button onClick={()=>numbersProvider.loadNumber()}>load</button>

@@ -1,14 +1,14 @@
 import React from 'react'
 import NumberListItem from './NumberListItem'
+import numbersProvider from './NumbersProvider'
 import SelectionProvider from './SelectGroupProvider'
-import {providerOf, stateful} from 'react-stator'
+import {stateful} from 'react-stator'
 
-
+const selectionProvider = new SelectionProvider()
 export default stateful(
     { numbers: [], localTime: new Date().getTime() },
+    [numbersProvider],
     ( { state, applyLocalState } ) =>{
-        const selectionProvider = new SelectionProvider()
-        const numbersProvider = providerOf("numbers")
         return <div>
 
             <h2>Change The shared state:</h2>
