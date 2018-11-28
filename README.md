@@ -1,6 +1,8 @@
 # React Stator
-###### \- u can haz state
 
+> u can haz state
+
+# Basics
 There are three components of react stator.
  - Local State
  - Shared State
