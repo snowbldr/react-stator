@@ -21,7 +21,7 @@ A shared state provider is an instance that provides shared state to a component
 
 ## Reading State
 
-To connect the components state to the shared state, pass an initial state that has the same properties as the shared
+To connect the component's state to the shared state, pass an initial state that has the same properties as the shared
 state that you want to connect to. Once you've done that, you can access the properties using either:
 
 `this.state` for react component classes that extend StatefulComponent 
@@ -95,7 +95,7 @@ Below are some examples of using react-stator
 You can also clone this repo, cd to example-app, and run `npm install && npm run start`.
 
 #### Example SharedStateProvider
-```JavaScript    
+```js    
 import {SharedStateProvider} from 'react-stator'
 
 export default new (class NumbersProvider extends SharedStateProvider {
@@ -116,13 +116,14 @@ export default new (class NumbersProvider extends SharedStateProvider {
 
 
 #### Example stateful functional component
-```JavaScript
+```js
 import React from 'react'
 import NumbersProvider from './NumbersProvider.js'
 import { stateful } from 'index'
 
 export default stateful(
     { numbers: [], localTime: new Date().getTime() },
+    [NumbersProvider],
     ( { state, applyLocalState } ) =>
         <div>
 
@@ -147,14 +148,14 @@ export default stateful(
 
 #### Example stateful class component
 
-```JavaScript
+```js
 import React from 'react'
 import numbersProvider from './NumbersProvider.js'
 import {StatefulComponent} from 'stateful-components'
 
 export default class extends StatefulComponent{
    constructor(props){
-       super({numbers: [], localTime: 0}, props)
+       super({numbers: [], localTime: 0},[numbersProvider], props)
    }
 
    render() {
