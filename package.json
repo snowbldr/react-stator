@@ -11,9 +11,6 @@
     "jest": "^23.6.0",
     "react-dom": "^16.6.1"
   },
-  "scripts": {
-    "start": "http-server -p 9000"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:narcolepticsnowman/react-stator.git"
