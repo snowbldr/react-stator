@@ -13,7 +13,7 @@ export default class SharedStateProvider {
      */
     constructor( provides ) {
         this.initialPaths = paths.toPaths( provides,
-                                           ( obj ) => !( obj && typeof obj.then === 'function' ) )
+                                           ( obj ) => !( obj && obj.then && typeof obj.then === 'function' ) )
                                  .reduce(
                                      ( paths, path ) => {
                                          paths[ path ] = true
