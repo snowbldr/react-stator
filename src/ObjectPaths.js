@@ -16,8 +16,12 @@ const toPathStrings = ( next, currPath, paths, depth, filter ) => {
             }
         }
     } else if( next && typeof next === 'object' && filter( next ) ) {
-        Object.keys( next )
-              .forEach( k => toPathStrings( next[ k ], currPath ? currPath + '.' + k : k, paths, depth && depth - 1, filter ) )
+        let keys = Object.keys( next )
+        if( keys.length > 0 ) {
+            keys.forEach( k => toPathStrings( next[ k ], currPath ? currPath + '.' + k : k, paths, depth && depth - 1, filter ) )
+        } else {
+            paths.push( currPath )
+        }
     } else {
         paths.push( currPath )
     }
@@ -109,12 +113,12 @@ export default {
      * @param obj The object to check if the path exists on
      * @returns boolean whether the path exists or not
      */
-    hasPath: (path, obj) => {
-        let parent = path.split(".").slice(0, -1)
-        if(parent && parent.length > 1){
-            return !!this.getPath(parent.join("."), obj)
+    hasPath: ( path, obj ) => {
+        let parent = path.split( '.' ).slice( 0, -1 )
+        if( parent && parent.length > 1 ) {
+            return !!this.getPath( parent.join( '.' ), obj )
         } else {
-            return !!obj && obj.hasOwnProperty(path)
+            return !!obj && obj.hasOwnProperty( path )
         }
     }
 }
