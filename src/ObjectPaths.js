@@ -103,7 +103,7 @@ export default {
             let ind = prop.slice( indMarker + 1, prop.length - 1 )
             return obj[ prop.slice( 0, indMarker ) ][ parseInt( ind ) ]
         } else {
-            return obj[ prop ] ? obj[ prop ] : undefined
+            return prop in obj ? obj[ prop ] : undefined
         }
     }, obj ),
 

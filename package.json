@@ -1,6 +1,6 @@
 {
   "name": "react-stator",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Robert Kmepton <r@snow87.com>",
   "private": false,
   "dependencies": {
