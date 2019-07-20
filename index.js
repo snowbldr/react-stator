@@ -1,6 +1,6 @@
-import {stateful, StatefulComponent} from './src/StatefulComponent'
-import SharedStateProvider from './src/SharedStateProvider'
-import ObjectPaths from './src/ObjectPaths'
+import {stateful, StatefulComponent} from './StatefulComponent'
+import SharedStateProvider from './SharedStateProvider'
+import ObjectPaths from './ObjectPaths'
 
 export {
     stateful, SharedStateProvider, StatefulComponent, ObjectPaths
