@@ -3,11 +3,17 @@
   "version": "1.0.9",
   "author": "Robert Kmepton <r@snow87.com>",
   "private": false,
+  "files": ["lib/**"],
+  "main" : "lib/index.js",
   "dependencies": {
     "react": "^16.2.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/cli": "^7.5.4",
     "jest": "^23.6.0",
     "react-dom": "^16.6.1"
   },
@@ -22,5 +28,14 @@
     "flux"
   ],
   "license": "MIT",
+  "scripts": {
+    "prepublishOnly": "babel index.js src --out-dir lib"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ]
+  },
   "homepage": "https://github.com/narcolepticsnowman/react-stator"
 }
