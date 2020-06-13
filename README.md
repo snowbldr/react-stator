@@ -1,6 +1,7 @@
 # React Stator
 
-> u can haz state
+# THIS PROJECT IS ABANDONED!
+don't use this, use hooks.
 
 # Basics
 There are three components of react stator.

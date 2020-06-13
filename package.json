@@ -1,12 +1,14 @@
 {
   "name": "react-stator",
-  "version": "1.0.11",
-  "author": "Robert Kmepton <r@snow87.com>",
+  "version": "2.0.0",
+  "author": "Robert Kempton <r@snow87.com>",
   "private": false,
-  "files": ["lib/**"],
-  "main" : "lib/index.js",
+  "files": [
+    "lib/**"
+  ],
+  "main": "lib/index.js",
   "dependencies": {
-    "react": "^16.2.0",
+    "react": "^16.9.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -14,8 +16,7 @@
     "@babel/preset-env": "^7.5.4",
     "@babel/preset-react": "^7.0.0",
     "@babel/cli": "^7.5.4",
-    "jest": "^23.6.0",
-    "react-dom": "^16.6.1"
+    "react-dom": "^16.9.0"
   },
   "repository": {
     "type": "git",
